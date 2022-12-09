@@ -45,8 +45,8 @@ lvl_tiles = lvl["layers"][1]["data"] -- level tiles
 mapRows = lvl["layers"][1]["height"]
 mapCols = lvl["layers"][1]["width"]
 
-x = 0
-y = 1
+local x = 0
+local y = 1
 -- render map
 for i in ipairs(lvl_tiles) do
     if x == mapCols then
