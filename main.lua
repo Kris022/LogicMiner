@@ -4,64 +4,131 @@
 --
 -----------------------------------------------------------------------------------------
 -- Your code here
-local lvl = require "mine2"
+local groups = require "groups"
+local mapLoader = require "mapLoader"
 
--- Set up display groups
-local backGroup = display.newGroup() -- Display group for the background image
-local mainGroup = display.newGroup() -- Display group for the ship, asteroids, lasers, etc.
-local uiGroup = display.newGroup() -- Display group for UI objects like the score
-
--- Load the background
-local background = display.newImageRect(backGroup, "images/background1.png", 1400, 800)
-background.x = display.contentCenterX
-background.y = display.contentCenterY
-
--- Configure image sheet
-local sheetOptions = {
-    frames = {{ -- 1) asteroid 1
+uiOptions = {
+    frames = {{ -- 1) right
         x = 0,
         y = 0,
-        width = 32,
-        height = 30
-    }, { -- 2) asteroid 2
-        x = 32,
+        width = 64,
+        height = 64
+    }, { -- 2) down
+        x = 64,
         y = 0,
-        width = 32,
-        height = 30
-    }, { -- 3) asteroid 3
+        width = 64,
+        height = 64
+    }, { -- 3) left
         x = 0,
-        y = 30,
-        width = 32,
-        height = 30
-    }, { -- 4) ship
-        x = 32,
-        y = 30,
-        width = 32,
-        height = 30
+        y = 64,
+        width = 64,
+        height = 64
+    }, { -- 4) up
+        x = 64,
+        y = 64,
+        width = 64,
+        height = 64
     }}
 }
 
-local objectSheet = graphics.newImageSheet( "images/tiles.png", sheetOptions )
+uiSheet = graphics.newImageSheet("images/uiButtons.png", uiOptions)
 
-local lvl_size = {width = lvl["layers"][1]["width"], height = lvl["layers"][1]["height"]}
+-- Button Images
+upButton = display.newImageRect(uiGroup, uiSheet, 4, 64, 64)
+upButton.x = 64 * 1.5
+upButton.y = 64 * 5.5
+upButton.ID = "up"
 
-local lvl_tiles = lvl["layers"][1]["data"] -- level tiles
+downButton = display.newImageRect(uiGroup, uiSheet, 2, 64, 64)
+downButton.x = 64 * 1.5
+downButton.y = 64 * 6.5
+downButton.ID = "down"
 
-mapRows = lvl["layers"][1]["height"] 
-mapCols = lvl["layers"][1]["width"] 
+leftButton = display.newImageRect(uiGroup, uiSheet, 3, 64, 64)
+leftButton.x = 64 * 0.5
+leftButton.y = 64 * 6
+leftButton.ID = "left"
 
-x = 0 
-y = 1
+rightButton = display.newImageRect(uiGroup, uiSheet, 1, 64, 64)
+rightButton.x = 64 * 2.5
+rightButton.y = 64 * 6
+rightButton.ID = "right"
 
-for i in ipairs(lvl_tiles) do
-    if x == mapCols then
-        x = 0
-        y = y + 1
+local groupBounds = uiGroup.contentBounds
+local groupRegion = display.newRect(0, 0, groupBounds.xMax - groupBounds.xMin + 200,
+    groupBounds.yMax - groupBounds.yMin + 200)
+groupRegion.x = groupBounds.xMin + (uiGroup.contentWidth / 2)
+groupRegion.y = groupBounds.yMin + (uiGroup.height / 2)
+groupRegion.isVisible = false
+groupRegion.isHitTestable = true
+
+local function detectButton(event)
+    for i = 1, uiGroup.numChildren do
+        local bounds = uiGroup[i].contentBounds
+        if (event.x > bounds.xMin and event.x < bounds.xMax and event.y > bounds.yMin and event.y < bounds.yMax) then
+            return uiGroup[i]
+        end
     end
-    if lvl_tiles[i] ~= 0 then
-        local tile = display.newImageRect( mainGroup, objectSheet, 1, 32, 30 )
-        tile.x = x * 32
-        tile.y = y * 30
-    end
-    x = x + 1
 end
+
+local function handleController(event)
+
+    local touchOverButton = detectButton(event)
+
+    if (event.phase == "began") then
+
+        if (touchOverButton ~= nil) then
+            if not (uiGroup.touchID) then
+                -- Set/isolate this touch ID
+                uiGroup.touchID = event.id
+                -- Set the active button
+                uiGroup.activeButton = touchOverButton
+
+                if (uiGroup.activeButton.ID == "left") then
+                    print("LEFT")
+                elseif (uiGroup.activeButton.ID == "right") then
+                    print("RIGHT")
+                elseif (uiGroup.activeButton.ID == "up") then
+                    print("UP")
+                elseif (uiGroup.activeButton.ID == "down") then
+                    print("DOWN")
+                end
+
+            end
+            return true
+        end
+
+    elseif (event.phase == "moved") then
+
+        -- Handle slide off
+        if (touchOverButton == nil and uiGroup.activeButton ~= nil) then
+            event.target:dispatchEvent({
+                name = "touch",
+                phase = "ended",
+                target = event.target,
+                x = event.x,
+                y = event.y
+            })
+            return true
+        end
+
+    elseif (event.phase == "ended" and uiGroup.activeButton ~= nil) then
+
+        -- Release this touch ID
+        uiGroup.touchID = nil
+        -- Set that no button is active
+        uiGroup.activeButton = nil
+        -- Stop firing the weapon
+        print("STOP FIRING")
+        return true
+    end
+end
+
+groupRegion:addEventListener("touch", handleController)
+
+-- hook line segments
+local segments = {{
+    x = 9,
+    y = 1
+}}
+
