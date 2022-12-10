@@ -27,12 +27,14 @@ chainSheet = graphics.newImageSheet("images/chain.png", chainOptions)
 -- hook line segments
 local segments = {display.newImageRect(mainGroup, chainSheet, 1, 32, 30)}
 segments[1].x = 32 * 8
-segments[1].y = 30 * 2
+segments[1].y = 30 * 1
 
 dir = {
     x = 0,
     y = 0
 }
+
+-- add 1 to x column
 
 function setDir(newX, newY)
     dir.x = newX
@@ -41,7 +43,10 @@ end
 
 function vlidatePosition(row, col)
     local tileIndex = (row * mapCols) + col
-    if tileIndex == 0 then
+    local tileIndex = ((nextSegment.y/30+1) * mapCols) + (nextSegment.x/32+1)
+
+
+    if lvl_tiles[tileIndex] == "0" then
         return true
     else
         return false
@@ -61,12 +66,23 @@ function removeSegment()
     table.remove(segments, #segments)
 end
 
+function mapCoordinatesToTableIndex(givenX, givenY, length)
+    return givenY * length + givenX
+end
+
+
 function manageSegments()
     -- get position of the next segment
     local nextSegment = {
         x = segments[#segments].x + (dir.x * 32),
         y = segments[#segments].y + (dir.y * 30)
     }
+
+    --print(nextSegment.x / 32) -- when indexing tiles increment x by 1
+    local col = (nextSegment.x / 32) + 1
+    local row = (nextSegment.y / 30) - 1
+    local r = (row * 31) + col
+    print(lvl_tiles[r])
 
 
     if #segments>1 and nextSegment.x == segments[#segments-1].x and nextSegment.y == segments[#segments-1].y then
