@@ -1,4 +1,4 @@
-local lvl = require "mine2"
+local tileMap = require "mine2"
 
 -- Load the background
 background = display.newImageRect(backGroup, "images/background1.png", 1400, 800)
@@ -34,29 +34,84 @@ sheetOptions = {
         height = 30
     }}
 }
+
 objectSheet = graphics.newImageSheet("images/tiles.png", sheetOptions)
 
-lvl_size = {
-    width = lvl["layers"][1]["width"],
-    height = lvl["layers"][1]["height"]
-}
-lvl_tiles = lvl["layers"][1]["data"] -- level tiles
+-------------------------------------- Level Variables --------------------------------------  
 
-mapRows = lvl["layers"][1]["height"]
-mapCols = lvl["layers"][1]["width"]
+levelTiles = tileMap["layers"][1]["data"] -- 1D table storing tile values
 
-local x = 0
-local y = 1
--- render map
-for i in ipairs(lvl_tiles) do
-    if x == mapCols then
-        x = 0
-        y = y + 1
+-- Number of rows and tables the tile map has
+mapRows = tileMap["layers"][1]["height"]
+mapCols = tileMap["layers"][1]["width"]
+
+-- Individual Tile Size
+tileWidth = tileMap["tilewidth"]
+tileHeight = tileMap["tileheight"]
+
+function convert1dTo2d(input)
+    -- Create a new empty 2-dimensional table
+    local output = {}
+
+    -- Loop over the elements in the input table
+    for i, element in ipairs(input) do
+        -- Calculate the row index of the current element
+        local row = math.floor((i - 1) / mapCols) + 1
+
+        -- Initialize the current row if it doesn't exist yet
+        if output[row] == nil then
+            output[row] = {}
+        end
+
+        -- Insert the current element into the current row
+        table.insert(output[row], element)
     end
-    if lvl_tiles[i] ~= 0 then
-        local tile = display.newImageRect(mainGroup, objectSheet, lvl_tiles[i], 32, 30)
-        tile.x = x * 32
-        tile.y = y * 30
-    end
-    x = x + 1
+
+    -- Return the resulting 2-dimensional table
+    return output
 end
+
+function printTilesToConsole(input2dTable)
+    -- Allows to see values of individual tiles in the console
+    local bigString = ""
+
+    for row in ipairs(input2dTable) do
+        bigString = bigString .. "\n"
+        for col in ipairs(input2dTable[row]) do
+            bigString = bigString .. input2dTable[row][col] .. ", "
+        end
+    end
+    print(bigString)
+end
+
+levelTiles = convert1dTo2d(levelTiles)
+-- printTilesToConsole(levelTiles)
+
+-- Define the offset for position of the top-left corner of the tilemap on the screen
+map_x = 0
+map_y = 0
+
+function renderTilesToScreen(input2dTable)
+
+    -- Loop over the rows and columns of the tilemap
+    for row in ipairs(input2dTable) do
+        for col in ipairs(input2dTable[row]) do
+           -- Calculate the position of the current tile on the screen
+            local tileX = map_x + (col - 1) * tileWidth
+            local tileY = map_y + (row - 1) * tileHeight
+
+            local tileId = input2dTable[row][col]
+
+            if tileId ~= 0 then
+                -- Render the tile and set its position
+                local tile = display.newImageRect(mainGroup, objectSheet, tileId, tileWidth, tileHeight)
+                tile.x = tileX
+                tile.y = tileY
+            end
+            
+        end
+    end
+
+end
+
+renderTilesToScreen(levelTiles)
