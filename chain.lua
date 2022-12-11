@@ -58,6 +58,7 @@ function addSegment(row, col)
     tile.y = tileY
 
     segments[#segments+1] = {tile, col, row}
+    levelTiles[row][col] = "s"
 
 end
 
@@ -77,14 +78,27 @@ function manageSegments()
     if levelTiles[nextRow][nextCol] == 0 then
         -- If position is valid
         addSegment(nextRow, nextCol)
-    elseif levelTiles[nextRow][nextCol] == "c" then
-        -- Check if this is the latest inserted segment
-        -- if it is remove the last segment from the list        
+
+    -- Check if player tried to remove last inserted segment
+    elseif levelTiles[nextRow][nextCol] == "s" then
+        -- Get penulitmate values
+        local penultimateSegment = segments[#segments-1]
+        local penultimateRow = penultimateSegment[3]
+        local penultimateCol = penultimateSegment[2]
+
+        -- Check if penultimate segment equals next segment to be inserted
+        if penultimateRow == nextRow and penultimateCol == nextCol then
+            -- change last segment tile back to 0
+            levelTiles[lastRow][lastCol] = 0
+            -- Remove last segment
+            display.remove(segments[#segments][1])
+            table.remove(segments, #segments)
+        end
+
     end
 
     
 
-    -- Change penultimate segment to p on the map
 
 end
 
@@ -92,3 +106,4 @@ end
 
 
 
+-- ERROR HANDLE TRYING TO MOVE ONTO THE FIRST SEGMENTS POSITION
