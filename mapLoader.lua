@@ -1,4 +1,4 @@
-local tileMap = require "mine2"
+local tileMap = require "maps.mine3"
 
 -- Load the background
 background = display.newImageRect(backGroup, "images/background1.png", 1400, 800)
@@ -7,7 +7,8 @@ background.y = display.contentCenterY
 
 -- Configure image sheet
 sheetOptions = {
-    frames = {{ -- 1) up wall
+    frames = {
+        { -- 1) up wall
         x = 0,
         y = 0,
         width = 32,
@@ -32,10 +33,28 @@ sheetOptions = {
         y = 60,
         width = 32,
         height = 30
-    }}
-}
+    },
+    { -- 6) blue dimond
+        x = 32,
+        y = 60,
+        width = 32,
+        height = 30
+    },
+    { -- 7) green dimond
+        x = 0,
+        y = 90,
+        width = 32,
+        height = 30
+    },
+    { -- 8) red dimond
+        x = 32,
+        y = 90,
+        width = 32,
+        height = 30
+    }
+}}
 
-objectSheet = graphics.newImageSheet("images/tiles.png", sheetOptions)
+objectSheet = graphics.newImageSheet("images/tiles2.png", sheetOptions)
 
 -------------------------------------- Level Variables --------------------------------------  
 

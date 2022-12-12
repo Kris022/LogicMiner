@@ -19,10 +19,15 @@ uiOptions = {
         y = 64,
         width = 64,
         height = 64
+    }, { -- 5) snag button
+        x = 0,
+        y = 64 + 168,
+        width = 104,
+        height = 104
     }}
 }
 
-uiSheet = graphics.newImageSheet("images/uiButtons.png", uiOptions)
+uiSheet = graphics.newImageSheet("images/uiButtons2.png", uiOptions)
 
 -- Button Images
 upButton = display.newImageRect(uiGroup, uiSheet, 4, 64, 64)
@@ -44,6 +49,11 @@ rightButton = display.newImageRect(uiGroup, uiSheet, 1, 64, 64)
 rightButton.x = 64 * 2.5
 rightButton.y = 64 * 6
 rightButton.ID = "right"
+
+snagButton = display.newImageRect(uiGroup, uiSheet, 5, 104, 104)
+snagButton.x = 64 * 1.65
+snagButton.y = 64 * 3.5
+snagButton.ID = "snag"
 
 local groupBounds = uiGroup.contentBounds
 local groupRegion = display.newRect(0, 0, groupBounds.xMax - groupBounds.xMin + 200,
@@ -83,6 +93,9 @@ local function handleController(event)
                     setDir(0, -1)
                 elseif (uiGroup.activeButton.ID == "down") then
                     setDir(0, 1)
+                elseif (uiGroup.activeButton.ID == "snag") then
+                    --timer.performWithDelay( 1000, removeLastSegment, 2 )
+                    returnToStart()
                 end
 
             end
@@ -104,14 +117,16 @@ local function handleController(event)
         end
 
     elseif (event.phase == "ended" and uiGroup.activeButton ~= nil) then
+        
+        if uiGroup.activeButton.ID ~= "snag" then
+            -- Add the segment after release
+            manageSegments()
+        end
+
         -- Release this touch ID
         uiGroup.touchID = nil
         -- Set that no button is active
         uiGroup.activeButton = nil
-        -- Stop firing the weapon
-
-        -- add the segment after release
-        manageSegments()
 
         return true
     end
