@@ -43,6 +43,8 @@ dir = {
     y = 0
 }
 
+local hookedDimond
+
 function setDir(newX, newY)
     dir.x = newX
     dir.y = newY
@@ -67,18 +69,32 @@ function removeLastSegment()
     local lastRow = lastSegment[3] -- row value of the last segment
     local lastCol = lastSegment[2] -- col value of the last segment
 
+    if hookedDimond ~= nil then
+        -- Move dimond with the chain
+        moveDimond(hookedDimond, lastRow, lastCol)
+        -- Check if dimond has reached collection point
+        if lastRow == 2 and lastCol == 10 then
+            removeDimond(hookedDimond)
+            hookedDimond = nil
+            -- remove dimond and increment score
+        end
+    end
+
     -- change last segment tile back to 0
     levelTiles[lastRow][lastCol] = 0
     -- Remove last segment
     display.remove(segments[#segments][1])
     table.remove(segments, #segments)
+
+    
 end
 
 function returnToStart()
-
+    -- Disable button while this is happening
     if #segments > 1 then
         timer.performWithDelay( 350, removeLastSegment, #segments-1 )
     end
+    -- re-enable after this
 end
 
 function manageSegments()
@@ -90,6 +106,14 @@ function manageSegments()
     -- Compute where the next segment will be
     local nextRow = lastRow + dir.y
     local nextCol = lastCol + dir.x
+
+    -- check if dimond is attached to the chain
+    for i in ipairs(dimonds) do
+        if dimonds[i][2] == nextRow and dimonds[i][3] == nextCol then
+            hookedDimond = i
+        end
+    end
+    
 
     -- Check if new segment can be inserted at the position
     if levelTiles[nextRow][nextCol] == 0 then

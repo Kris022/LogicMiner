@@ -110,6 +110,8 @@ levelTiles = convert1dTo2d(levelTiles)
 map_x = 0
 map_y = 0
 
+dimonds = {}
+
 function renderTilesToScreen(input2dTable)
 
     -- Loop over the rows and columns of the tilemap
@@ -124,13 +126,49 @@ function renderTilesToScreen(input2dTable)
             if tileId ~= 0 then
                 -- Render the tile and set its position
                 local tile = display.newImageRect(mainGroup, objectSheet, tileId, tileWidth, tileHeight)
+
+                if tileId > 6 then
+                    dimonds[#dimonds+1] = {tile, row, col, tileId, 5} -- display obj, row, col, tileId, rocks
+                end
+
                 tile.x = tileX
                 tile.y = tileY
             end
             
         end
     end
-
 end
 
 renderTilesToScreen(levelTiles)
+
+function removeDimond(index)
+    -- no need since levelTiles[row][col] = 0
+    display.remove(dimonds[index][1])
+    table.remove(dimonds, index) -- table, index
+end
+
+function moveDimond(index, newRow, newCol)
+    local newX = map_x + (newCol - 1) * tileWidth
+    local newY = map_y + (newRow - 1) * tileHeight
+
+    -- only for tiles tile id 7
+
+    -- Only allow 5 rocks to spawn
+    if dimonds[index][5] > 0 then
+        dimonds[index][5] = dimonds[index][5] - 1
+
+        local tile = display.newImageRect(mainGroup, objectSheet, 1, tileWidth, tileHeight)
+        tile.x = dimonds[index][1].x
+        tile.y = dimonds[index][1].y
+    end
+
+    -- Set levelTiles row and col to 1
+    
+    dimonds[index][1].x = newX
+    dimonds[index][1].y = newY
+end
+
+--moveDimond(4, 1, 1)
+-- 6 blue dimond
+-- 7 green dimond 
+-- 8 red dimond
