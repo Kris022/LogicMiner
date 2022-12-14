@@ -128,7 +128,7 @@ function renderTilesToScreen(input2dTable)
                 local tile = display.newImageRect(mainGroup, objectSheet, tileId, tileWidth, tileHeight)
 
                 if tileId >= 6 then
-                    dimonds[#dimonds+1] = {tile, row, col, tileId, 6} -- display obj, row, col, tileId, rocks
+                    dimonds[#dimonds+1] = {tile, row, col, tileId, 5} -- display obj, row, col, tileId, rocks
                     levelTiles[row][col] = 0
                   --  tile = display.newImageRect(dimondGroup, objectSheet, tileId, tileWidth, tileHeight)
                 end

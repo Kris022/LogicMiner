@@ -4,13 +4,8 @@
 --
 -----------------------------------------------------------------------------------------
 -- Your code here
+local groups = require "groups"
+local mapLoader = require "mapLoader"
+local chain = require "chain"
+local dpad = require "dpad"
 
-
-local composer = require("composer")
-
--- Hide status bar
-display.setStatusBar(display.HiddenStatusBar)
-
-
--- Go to the menu screen
-composer.gotoScene("menu")
