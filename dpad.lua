@@ -55,6 +55,7 @@ snagButton.x = 64 * 1.65
 snagButton.y = 64 * 3.5
 snagButton.ID = "snag"
 
+
 local groupBounds = uiGroup.contentBounds
 local groupRegion = display.newRect(0, 0, groupBounds.xMax - groupBounds.xMin + 200,
     groupBounds.yMax - groupBounds.yMin + 200)
@@ -93,8 +94,9 @@ local function handleController(event)
                     setDir(0, -1)
                 elseif (uiGroup.activeButton.ID == "down") then
                     setDir(0, 1)
-                elseif (uiGroup.activeButton.ID == "snag") then
+                elseif (uiGroup.activeButton.ID == "snag") and not isReturning then
                     --timer.performWithDelay( 1000, removeLastSegment, 2 )
+                    isReturning = true
                     returnToStart()
                 end
 

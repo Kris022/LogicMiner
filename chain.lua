@@ -43,6 +43,8 @@ dir = {
     y = 0
 }
 
+isReturning = false
+
 local hookedDimond
 
 function setDir(newX, newY)
@@ -74,9 +76,10 @@ function removeLastSegment()
         moveDimond(hookedDimond, lastRow, lastCol)
         -- Check if dimond has reached collection point
         if lastRow == 2 and lastCol == 10 then
+            -- remove dimond and increment score
             removeDimond(hookedDimond)
             hookedDimond = nil
-            -- remove dimond and increment score
+            -- re enable navigation   
         end
     end
 
@@ -86,15 +89,18 @@ function removeLastSegment()
     display.remove(segments[#segments][1])
     table.remove(segments, #segments)
 
-    
+    if #segments == 1 then
+        isReturning = false  
+    end
+
 end
 
 function returnToStart()
     -- Disable button while this is happening
     if #segments > 1 then
-        timer.performWithDelay( 350, removeLastSegment, #segments-1 )
-    end
+        timer.performWithDelay(350, removeLastSegment, #segments - 1)
     -- re-enable after this
+    end
 end
 
 function manageSegments()
@@ -107,29 +113,33 @@ function manageSegments()
     local nextRow = lastRow + dir.y
     local nextCol = lastCol + dir.x
 
-    -- check if dimond is attached to the chain
-    for i in ipairs(dimonds) do
-        if dimonds[i][2] == nextRow and dimonds[i][3] == nextCol then
-            hookedDimond = i
+    -- Do not allow player to move out of bounds
+    if nextRow ~= 1 and not isReturning and hookedDimond == nil then
+
+        -- check if dimond is attached to the chain
+        for i in ipairs(dimonds) do
+            if dimonds[i][2] == nextRow and dimonds[i][3] == nextCol then
+                hookedDimond = i
+            end
         end
-    end
-    
 
-    -- Check if new segment can be inserted at the position
-    if levelTiles[nextRow][nextCol] == 0 then
-        -- If position is valid
-        addSegment(nextRow, nextCol)
+        -- Check if new segment can be inserted at the position
+        if levelTiles[nextRow][nextCol] == 0 then
+            -- If position is valid
+            addSegment(nextRow, nextCol)
 
-        -- Check if player tried to remove last inserted segment
-    elseif levelTiles[nextRow][nextCol] == "s" then
-        -- Get penulitmate values
-        local penultimateSegment = segments[#segments - 1]
-        local penultimateRow = penultimateSegment[3]
-        local penultimateCol = penultimateSegment[2]
+            -- Check if player tried to remove last inserted segment
+        elseif levelTiles[nextRow][nextCol] == "s" then
+            -- Get penulitmate values
+            local penultimateSegment = segments[#segments - 1]
+            local penultimateRow = penultimateSegment[3]
+            local penultimateCol = penultimateSegment[2]
 
-        -- Check if penultimate segment equals next segment to be inserted
-        if penultimateRow == nextRow and penultimateCol == nextCol then
-            removeLastSegment()
+            -- Check if penultimate segment equals next segment to be inserted
+            if penultimateRow == nextRow and penultimateCol == nextCol then
+                removeLastSegment()
+            end
+
         end
 
     end

@@ -127,8 +127,10 @@ function renderTilesToScreen(input2dTable)
                 -- Render the tile and set its position
                 local tile = display.newImageRect(mainGroup, objectSheet, tileId, tileWidth, tileHeight)
 
-                if tileId > 6 then
+                if tileId >= 6 then
                     dimonds[#dimonds+1] = {tile, row, col, tileId, 5} -- display obj, row, col, tileId, rocks
+                    levelTiles[row][col] = 0
+                  --  tile = display.newImageRect(dimondGroup, objectSheet, tileId, tileWidth, tileHeight)
                 end
 
                 tile.x = tileX
@@ -151,24 +153,25 @@ function moveDimond(index, newRow, newCol)
     local newX = map_x + (newCol - 1) * tileWidth
     local newY = map_y + (newRow - 1) * tileHeight
 
-    -- only for tiles tile id 7
-
-    -- Only allow 5 rocks to spawn
-    if dimonds[index][5] > 0 then
+    -- Check if id is 7 and only allow 5 rocks to spawn
+    if dimonds[index][5] > 0 and dimonds[index][4] == 7 then
         dimonds[index][5] = dimonds[index][5] - 1
 
         local tile = display.newImageRect(mainGroup, objectSheet, 1, tileWidth, tileHeight)
         tile.x = dimonds[index][1].x
         tile.y = dimonds[index][1].y
+        -- Set levelTiles row and col to 1 to enable collisions
+        local row = (tile.y - map_y) / tileHeight + 1
+        local col = (tile.x - map_x) / tileWidth + 1
+        levelTiles[row][col] = 1        
     end
 
-    -- Set levelTiles row and col to 1
-    
     dimonds[index][1].x = newX
     dimonds[index][1].y = newY
 end
 
---moveDimond(4, 1, 1)
+-- when all dimonds have been collected i.e. the #dimonds == 0 level is complete
+
 -- 6 blue dimond
 -- 7 green dimond 
 -- 8 red dimond
