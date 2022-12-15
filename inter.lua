@@ -8,7 +8,7 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 local function gotoGame()
-    composer.gotoScene("game")
+    composer.gotoScene("menu")
 end
 
 -- -----------------------------------------------------------------------------------
@@ -19,18 +19,11 @@ end
 function scene:create(event)
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
-    local background = display.newImageRect(sceneGroup, "images/background1.png", 1400, 800)
-    background.x = display.contentCenterX
-    background.y = display.contentCenterY
 
-    local lvlOneBtn = display.newText( sceneGroup, "Level One", display.contentCenterX-250, 200, native.systemFont, 44 )
+
+    local lvlOneBtn = display.newText( sceneGroup, "menu", display.contentCenterX, 200, native.systemFont, 44 )
 	lvlOneBtn:setFillColor( 0.82, 0.86, 1 )
 
-    local lvlTwoBtn = display.newText( sceneGroup, "| Level Two |", display.contentCenterX, 200, native.systemFont, 44 )
-	lvlTwoBtn:setFillColor( 0.82, 0.86, 1 )
-
-    local lvlThreeBtn = display.newText( sceneGroup, "Level Three", display.contentCenterX+260, 200, native.systemFont, 44 )
-	lvlThreeBtn:setFillColor( 0.82, 0.86, 1 )
 
     lvlOneBtn:addEventListener( "tap", gotoGame )
 end

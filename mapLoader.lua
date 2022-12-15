@@ -144,7 +144,6 @@ end
 renderTilesToScreen(levelTiles)
 
 function removeDimond(index)
-    -- no need since levelTiles[row][col] = 0
     display.remove(dimonds[index][1])
     table.remove(dimonds, index) -- table, index
 end
