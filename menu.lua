@@ -51,6 +51,7 @@ function scene:create(event)
     lvlThreeBtn:setFillColor(0.82, 0.86, 1)
 
     lvlOneBtn:addEventListener("tap", gotoGame)
+    lvlTwoBtn:addEventListener("tap", gototwo)
     lvlThreeBtn:addEventListener("tap", gotothree)
 end
 

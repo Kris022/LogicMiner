@@ -16,7 +16,7 @@ local uiGroup -- Display group for UI objects like the score
 -- -----------------------------------------------------------------------------------
 -- Game Map Loader module
 -- -----------------------------------------------------------------------------------
-local tileMap 
+local tileMap
 
 if composer.getVariable("one") then
     tileMap = require "maps.mine1"
@@ -208,6 +208,9 @@ local dir
 local isReturning
 local hookedDimond
 
+local maxSegments = 30
+local segmentsText
+
 local function setDir(newX, newY)
     dir.x = newX
     dir.y = newY
@@ -244,7 +247,7 @@ local function addSegment(row, col)
             elseif penultimateRow > lastRow and lastCol < col then
                 newLastSegmentGraphic = 6
             elseif penultimateRow > lastRow and lastCol > col then
-                newLastSegmentGraphic = 5                
+                newLastSegmentGraphic = 5
             end
             -- Change graphic for the last tile
             local lastTileGraphic = display.newImageRect(mainGroup, chainSheet, newLastSegmentGraphic, tileWidth,
@@ -273,7 +276,7 @@ local function addSegment(row, col)
                 newLastSegmentGraphic = 5
             elseif penultimateCol > lastCol and row > lastRow then
                 newLastSegmentGraphic = 6
-            
+
             end
             -- Change graphic for the last tile
             local lastTileGraphic = display.newImageRect(mainGroup, chainSheet, newLastSegmentGraphic, tileWidth,
@@ -292,7 +295,6 @@ local function addSegment(row, col)
 
     segments[#segments + 1] = {tile, col, row, tile.x, tile.y, spriteIndex}
     levelTiles[row][col] = "s"
-
 end
 
 local function goToWinScreen()
@@ -313,6 +315,10 @@ local function removeLastSegment()
         -- Check if dimond has reached collection point
         if lastRow == 2 and lastCol == 10 then
             -- remove dimond and increment score
+            if dimonds[hookedDimond][4] == 8 then
+                maxSegments = maxSegments - 5
+            end
+
             removeDimond(hookedDimond)
             hookedDimond = nil
 
@@ -333,13 +339,14 @@ local function removeLastSegment()
     if #segments == 1 then
         isReturning = false
     end
+    segmentsText.text = (#segments-1).."/"..maxSegments
 
 end
 
 local function returnToStart()
     -- Disable button while this is happening
     if #segments > 1 then
-        timer.performWithDelay(350, removeLastSegment, #segments - 1)
+        timer.performWithDelay(200, removeLastSegment, #segments - 1)
         -- re-enable after this
     end
 end
@@ -365,7 +372,7 @@ local function manageSegments()
         end
 
         -- Check if new segment can be inserted at the position
-        if levelTiles[nextRow][nextCol] == 0 then
+        if levelTiles[nextRow][nextCol] == 0 and  #segments <= maxSegments then
             -- If position is valid
             addSegment(nextRow, nextCol)
 
@@ -384,6 +391,7 @@ local function manageSegments()
         end
 
     end
+    segmentsText.text = (#segments-1).."/"..maxSegments
 
 end
 
@@ -462,7 +470,7 @@ local function handleController(event)
                     setDir(0, -1)
                 elseif (uiGroup.activeButton.ID == "down") then
                     setDir(0, 1)
-                elseif (uiGroup.activeButton.ID == "snag") and not isReturning then
+                elseif (uiGroup.activeButton.ID == "snag") and not isReturning and #segments > 1 then
                     isReturning = true
                     returnToStart()
                 end
@@ -550,6 +558,9 @@ function scene:create(event)
     snagButton.x = 64 * 1.65
     snagButton.y = 64 * 3.5
     snagButton.ID = "snag"
+
+    segmentsText = display.newText(uiGroup, "0/" .. maxSegments, 32, 128, native.systemFont, 21)
+    segmentsText:setFillColor(255, 255, 255)
 
     resetButton = display.newText(sceneGroup, "Exit", 32, 64, native.systemFont, 44)
     resetButton:setFillColor(0.82, 0.86, 1)
