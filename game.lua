@@ -237,7 +237,10 @@ local function removeLastSegment()
             -- remove dimond and increment score
             removeDimond(hookedDimond)
             hookedDimond = nil
-            -- re enable navigation   
+            
+            -- Check if all dimonds have been collected   
+            print(#dimonds)
+
         end
     end
 
@@ -373,16 +376,12 @@ local function handleController(event)
 
                 if (uiGroup.activeButton.ID == "left") then
                     setDir(-1, 0)
-                    print(uiGroup.activeButton.ID)
                 elseif (uiGroup.activeButton.ID == "right") then
                     setDir(1, 0)
-                    print(uiGroup.activeButton.ID)
                 elseif (uiGroup.activeButton.ID == "up") then
                     setDir(0, -1)
-                    print(uiGroup.activeButton.ID)
                 elseif (uiGroup.activeButton.ID == "down") then
                     setDir(0, 1)
-                    print(uiGroup.activeButton.ID)
                 elseif (uiGroup.activeButton.ID == "snag") and not isReturning then
                     isReturning = true
                     returnToStart()
@@ -411,7 +410,6 @@ local function handleController(event)
         if uiGroup.activeButton.ID ~= "snag" then
             -- Add the segment after release
             manageSegments()
-            print("manageSegments would be executed")
         end
 
         -- Release this touch ID
