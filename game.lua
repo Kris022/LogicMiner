@@ -16,7 +16,15 @@ local uiGroup -- Display group for UI objects like the score
 -- -----------------------------------------------------------------------------------
 -- Game Map Loader module
 -- -----------------------------------------------------------------------------------
-local tileMap = require "maps.mine3"
+local tileMap 
+
+if composer.getVariable("one") then
+    tileMap = require "maps.mine1"
+elseif composer.getVariable("two") then
+    tileMap = require "maps.mine2"
+elseif composer.getVariable("three") then
+    tileMap = require "maps.mine3"
+end
 
 local sheetOptions = {
     frames = {{ -- 1) up wall
@@ -246,6 +254,7 @@ local function addSegment(row, col)
 
             display.remove(segments[#segments][1])
             segments[#segments][1] = lastTileGraphic
+
         elseif lastRow ~= row then
             local penultimateSegment = segments[#segments - 1]
             local penultimateRow = penultimateSegment[3]
@@ -260,9 +269,9 @@ local function addSegment(row, col)
             end
 
             -- if the row is biger i.e. if moved down last segment is horizontal 
-            if lastSegment[6] == 2 and penultimateCol < lastCol and row > lastRow then
+            if penultimateCol < lastCol and row > lastRow then
                 newLastSegmentGraphic = 5
-            elseif lastSegment[6] == 2 and penultimateCol > lastCol and row > lastRow then
+            elseif penultimateCol > lastCol and row > lastRow then
                 newLastSegmentGraphic = 6
             
             end
@@ -344,7 +353,7 @@ local function manageSegments()
     -- Compute where the next segment will be
     local nextRow = lastRow + dir.y
     local nextCol = lastCol + dir.x
-    print(nextRow)
+
     -- Do not allow player to move out of bounds
     if nextRow > 1 and not isReturning and hookedDimond == nil then
 
@@ -508,6 +517,10 @@ function scene:create(event)
 
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
+    local background = display.newImageRect(sceneGroup, "images/background1.png", 1400, 800)
+    background.x = display.contentCenterX
+    background.y = display.contentCenterY
+
     mainGroup = display.newGroup()
     sceneGroup:insert(mainGroup)
     uiGroup = display.newGroup()
@@ -596,6 +609,7 @@ function scene:hide(event)
     elseif (phase == "did") then
         -- Code here runs immediately after the scene goes entirely off screen
         groupRegion:removeEventListener("touch", handleController)
+        resetButton:removeEventListener("tap", gotoGame)
         composer.removeScene("game")
     end
 end

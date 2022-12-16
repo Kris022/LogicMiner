@@ -13,4 +13,4 @@ display.setStatusBar(display.HiddenStatusBar)
 
 
 -- Go to the menu screen
-composer.gotoScene("game")
+composer.gotoScene("menu")

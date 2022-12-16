@@ -8,6 +8,23 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 local function gotoGame()
+    composer.setVariable( "one", true )
+    composer.setVariable( "two", false )
+    composer.setVariable( "three", false )
+    composer.gotoScene("game")
+end
+
+local function gototwo()
+    composer.setVariable( "one", false )
+    composer.setVariable( "two", true )
+    composer.setVariable( "three", false )
+    composer.gotoScene("game")
+end
+
+local function gotothree()
+    composer.setVariable( "one", false )
+    composer.setVariable( "two", false )
+    composer.setVariable( "three", true )
     composer.gotoScene("game")
 end
 
@@ -23,16 +40,18 @@ function scene:create(event)
     background.x = display.contentCenterX
     background.y = display.contentCenterY
 
-    local lvlOneBtn = display.newText( sceneGroup, "Level One", display.contentCenterX-250, 200, native.systemFont, 44 )
-	lvlOneBtn:setFillColor( 0.82, 0.86, 1 )
+    local lvlOneBtn = display.newText(sceneGroup, "Level One", display.contentCenterX - 250, 200, native.systemFont, 44)
+    lvlOneBtn:setFillColor(0.82, 0.86, 1)
 
-    local lvlTwoBtn = display.newText( sceneGroup, "| Level Two |", display.contentCenterX, 200, native.systemFont, 44 )
-	lvlTwoBtn:setFillColor( 0.82, 0.86, 1 )
+    local lvlTwoBtn = display.newText(sceneGroup, "| Level Two |", display.contentCenterX, 200, native.systemFont, 44)
+    lvlTwoBtn:setFillColor(0.82, 0.86, 1)
 
-    local lvlThreeBtn = display.newText( sceneGroup, "Level Three", display.contentCenterX+260, 200, native.systemFont, 44 )
-	lvlThreeBtn:setFillColor( 0.82, 0.86, 1 )
+    local lvlThreeBtn = display.newText(sceneGroup, "Level Three", display.contentCenterX + 260, 200, native.systemFont,
+        44)
+    lvlThreeBtn:setFillColor(0.82, 0.86, 1)
 
-    lvlOneBtn:addEventListener( "tap", gotoGame )
+    lvlOneBtn:addEventListener("tap", gotoGame)
+    lvlThreeBtn:addEventListener("tap", gotothree)
 end
 
 -- show()
