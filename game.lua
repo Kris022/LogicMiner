@@ -10,7 +10,7 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 -- Game Display Groups
 -- -----------------------------------------------------------------------------------
-local mainGroup 
+local mainGroup
 local uiGroup -- Display group for UI objects like the score
 
 -- -----------------------------------------------------------------------------------
@@ -19,8 +19,7 @@ local uiGroup -- Display group for UI objects like the score
 local tileMap = require "maps.mine3"
 
 local sheetOptions = {
-    frames = {
-        { -- 1) up wall
+    frames = {{ -- 1) up wall
         x = 0,
         y = 0,
         width = 32,
@@ -45,26 +44,23 @@ local sheetOptions = {
         y = 60,
         width = 32,
         height = 30
-    },
-    { -- 6) blue dimond
+    }, { -- 6) blue dimond
         x = 32,
         y = 60,
         width = 32,
         height = 30
-    },
-    { -- 7) green dimond
+    }, { -- 7) green dimond
         x = 0,
         y = 90,
         width = 32,
         height = 30
-    },
-    { -- 8) red dimond
+    }, { -- 8) red dimond
         x = 32,
         y = 90,
         width = 32,
         height = 30
-    }
-}}
+    }}
+}
 local objectSheet = graphics.newImageSheet("images/tiles2.png", sheetOptions)
 
 local levelTiles = tileMap["layers"][1]["data"] -- 1D table storing tile values
@@ -79,7 +75,6 @@ local map_x = 0
 local map_y = 0
 
 local dimonds
-
 
 local function convert1dTo2d(input)
     -- Create a new empty 2-dimensional table
@@ -108,7 +103,7 @@ local function renderTilesToScreen(input2dTable)
     -- Loop over the rows and columns of the tilemap
     for row in ipairs(input2dTable) do
         for col in ipairs(input2dTable[row]) do
-           -- Calculate the position of the current tile on the screen
+            -- Calculate the position of the current tile on the screen
             local tileX = map_x + (col - 1) * tileWidth
             local tileY = map_y + (row - 1) * tileHeight
 
@@ -119,15 +114,15 @@ local function renderTilesToScreen(input2dTable)
                 local tile = display.newImageRect(mainGroup, objectSheet, tileId, tileWidth, tileHeight)
 
                 if tileId >= 6 then
-                    dimonds[#dimonds+1] = {tile, row, col, tileId, 6} -- display obj, row, col, tileId, rocks
+                    dimonds[#dimonds + 1] = {tile, row, col, tileId, 6} -- display obj, row, col, tileId, rocks
                     levelTiles[row][col] = 0
-                  --  tile = display.newImageRect(dimondGroup, objectSheet, tileId, tileWidth, tileHeight)
+                    --  tile = display.newImageRect(dimondGroup, objectSheet, tileId, tileWidth, tileHeight)
                 end
 
                 tile.x = tileX
                 tile.y = tileY
             end
-            
+
         end
     end
 end
@@ -154,7 +149,7 @@ local function moveDimond(index, newRow, newCol)
         -- Set levelTiles row and col to 1 to enable collisions
         local row = (tile.y - map_y) / tileHeight + 1
         local col = (tile.x - map_x) / tileWidth + 1
-        levelTiles[row][col] = 1        
+        levelTiles[row][col] = 1
     end
 
     dimonds[index][1].x = newX
@@ -165,32 +160,32 @@ end
 -- Chain modules
 -- -----------------------------------------------------------------------------------
 local chainOptions = {
-    frames = {{ -- 1) right
+    frames = {{ -- 1) vertical
         x = 0,
         y = 0,
         width = 32,
         height = 30
-    }, { -- 2) down
+    }, { -- 2) horizontal
         x = 32,
         y = 0,
         width = 32,
         height = 30
-    }, { -- 3) right L
+    }, { -- 3) vertical L
         x = 0,
         y = 32,
         width = 32,
         height = 30
-    }, { -- 4) left L
+    }, { -- 4) vertical inverse L
         x = 32,
         y = 32,
         width = 32,
         height = 30
-    }, { -- 5) left L
+    }, { -- 5) horizontal L
         x = 0,
         y = 60,
         width = 32,
         height = 30
-    }, { -- 6) left L
+    }, { -- 6) horizontal inverse L
         x = 32,
         y = 60,
         width = 32,
@@ -211,21 +206,91 @@ local function setDir(newX, newY)
 end
 
 local function addSegment(row, col)
-    -- row = y, col = x
+    -- (next) row = y, (next) col = x
     local tileX = map_x + (col - 1) * tileWidth
     local tileY = map_y + (row - 1) * tileHeight
 
-    local tile = display.newImageRect(mainGroup, chainSheet, 1, tileWidth, tileHeight)
+    -- Adapt segment graphic
+    local spriteIndex = 1
+    -- check previous segment
+    if #segments > 1 then
+        local lastSegment = segments[#segments]
+        local lastRow = lastSegment[3] -- row value of the last segment
+        local lastCol = lastSegment[2] -- col value of the last segment
+
+        if lastRow == row then
+            spriteIndex = 2
+
+            -- Check penulitmate segment to adjust the last segment
+            local penultimateSegment = segments[#segments - 1]
+            local penultimateRow = penultimateSegment[3]
+            local penultimateCol = penultimateSegment[2]
+            local newLastSegmentGraphic = 2
+
+            -- if penultimate segment is above set sprite index of last segment to 3 = L
+            if penultimateRow < lastRow and lastCol < col then
+                newLastSegmentGraphic = 3
+
+            elseif penultimateRow < lastRow and lastCol > col then
+                newLastSegmentGraphic = 4
+            elseif penultimateRow > lastRow and lastCol < col then
+                newLastSegmentGraphic = 6
+            elseif penultimateRow > lastRow and lastCol > col then
+                newLastSegmentGraphic = 5                
+            end
+            -- Change graphic for the last tile
+            local lastTileGraphic = display.newImageRect(mainGroup, chainSheet, newLastSegmentGraphic, tileWidth,
+                tileHeight)
+            lastTileGraphic.x = segments[#segments][4]
+            lastTileGraphic.y = segments[#segments][5]
+
+            display.remove(segments[#segments][1])
+            segments[#segments][1] = lastTileGraphic
+        elseif lastRow ~= row then
+            local penultimateSegment = segments[#segments - 1]
+            local penultimateRow = penultimateSegment[3]
+            local penultimateCol = penultimateSegment[2]
+            local newLastSegmentGraphic = 1
+
+            -- if moved up
+            if row < lastRow and lastCol < penultimateCol then
+                newLastSegmentGraphic = 3
+            elseif row < lastRow and lastCol > penultimateCol then
+                newLastSegmentGraphic = 4
+            end
+
+            -- if the row is biger i.e. if moved down last segment is horizontal 
+            if lastSegment[6] == 2 and penultimateCol < lastCol and row > lastRow then
+                newLastSegmentGraphic = 5
+            elseif lastSegment[6] == 2 and penultimateCol > lastCol and row > lastRow then
+                newLastSegmentGraphic = 6
+            
+            end
+            -- Change graphic for the last tile
+            local lastTileGraphic = display.newImageRect(mainGroup, chainSheet, newLastSegmentGraphic, tileWidth,
+                tileHeight)
+            lastTileGraphic.x = segments[#segments][4]
+            lastTileGraphic.y = segments[#segments][5]
+            display.remove(segments[#segments][1])
+            segments[#segments][1] = lastTileGraphic
+
+        end
+    end
+
+    local tile = display.newImageRect(mainGroup, chainSheet, spriteIndex, tileWidth, tileHeight)
     tile.x = tileX
     tile.y = tileY
 
-    segments[#segments + 1] = {tile, col, row}
+    segments[#segments + 1] = {tile, col, row, tile.x, tile.y, spriteIndex}
     levelTiles[row][col] = "s"
 
 end
 
 local function goToWinScreen()
-    composer.gotoScene("winScene", { time=800, effect="crossFade" })
+    composer.gotoScene("winScene", {
+        time = 800,
+        effect = "crossFade"
+    })
 end
 
 local function removeLastSegment()
@@ -241,7 +306,7 @@ local function removeLastSegment()
             -- remove dimond and increment score
             removeDimond(hookedDimond)
             hookedDimond = nil
-            
+
             -- Check if all dimonds have been collected   
             if #dimonds == 0 then
                 goToWinScreen()
@@ -257,7 +322,7 @@ local function removeLastSegment()
     table.remove(segments, #segments)
 
     if #segments == 1 then
-        isReturning = false  
+        isReturning = false
     end
 
 end
@@ -266,7 +331,7 @@ local function returnToStart()
     -- Disable button while this is happening
     if #segments > 1 then
         timer.performWithDelay(350, removeLastSegment, #segments - 1)
-    -- re-enable after this
+        -- re-enable after this
     end
 end
 
@@ -428,10 +493,11 @@ local function handleController(event)
 end
 
 local function gotoGame()
-    composer.gotoScene("menu", { time=800, effect="crossFade" })
+    composer.gotoScene("menu", {
+        time = 800,
+        effect = "crossFade"
+    })
 end
-
-
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -494,7 +560,7 @@ function scene:show(event)
         groupRegion.isHitTestable = true
 
         levelTiles = convert1dTo2d(levelTiles)
-        
+
         dimonds = {}
         segments = {}
 
@@ -509,12 +575,11 @@ function scene:show(event)
 
         addSegment(1, 10)
 
-
     elseif (phase == "did") then
         -- Code here runs when the scene is entirely on screen
 
         groupRegion:addEventListener("touch", handleController) -- Only detect after scene loaded
-        resetButton:addEventListener( "tap", gotoGame )
+        resetButton:addEventListener("tap", gotoGame)
 
     end
 end
