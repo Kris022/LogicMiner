@@ -16,7 +16,7 @@ local uiGroup -- Display group for UI objects like the score
 -- -----------------------------------------------------------------------------------
 -- Game Map Loader module
 -- -----------------------------------------------------------------------------------
-local tileMap = require "maps.mine1"
+local tileMap = require "maps.mine3"
 
 local sheetOptions = {
     frames = {
@@ -279,9 +279,9 @@ local function manageSegments()
     -- Compute where the next segment will be
     local nextRow = lastRow + dir.y
     local nextCol = lastCol + dir.x
-
+    print(nextRow)
     -- Do not allow player to move out of bounds
-    if nextRow ~= 1 and not isReturning and hookedDimond == nil then
+    if nextRow > 1 and not isReturning and hookedDimond == nil then
 
         -- check if dimond is attached to the chain
         for i in ipairs(dimonds) do
@@ -472,7 +472,7 @@ function scene:create(event)
     snagButton.y = 64 * 3.5
     snagButton.ID = "snag"
 
-    resetButton = display.newText(sceneGroup, "Reset", 64, 32, native.systemFont, 44)
+    resetButton = display.newText(sceneGroup, "Exit", 32, 64, native.systemFont, 44)
     resetButton:setFillColor(0.82, 0.86, 1)
 
 end
