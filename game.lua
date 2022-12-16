@@ -16,7 +16,7 @@ local uiGroup -- Display group for UI objects like the score
 -- -----------------------------------------------------------------------------------
 -- Game Map Loader module
 -- -----------------------------------------------------------------------------------
-local tileMap = require "maps.mine3"
+local tileMap = require "maps.mine1"
 
 local sheetOptions = {
     frames = {
@@ -224,6 +224,10 @@ local function addSegment(row, col)
 
 end
 
+local function goToWinScreen()
+    composer.gotoScene("winScene", { time=800, effect="crossFade" })
+end
+
 local function removeLastSegment()
     local lastSegment = segments[#segments]
     local lastRow = lastSegment[3] -- row value of the last segment
@@ -239,7 +243,9 @@ local function removeLastSegment()
             hookedDimond = nil
             
             -- Check if all dimonds have been collected   
-            print(#dimonds)
+            if #dimonds == 0 then
+                goToWinScreen()
+            end
 
         end
     end
@@ -422,8 +428,10 @@ local function handleController(event)
 end
 
 local function gotoGame()
-    composer.gotoScene("menu")
+    composer.gotoScene("menu", { time=800, effect="crossFade" })
 end
+
+
 
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
